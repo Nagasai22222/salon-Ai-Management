@@ -1,13 +1,13 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'https://salon-ai-management.onrender.com/api', // Backend URL
+  baseURL: import.meta.env.VITE_API_URL,
   headers: {
     'Content-Type': 'application/json',
   },
 });
 
-// Request interceptor to add the JWT token to headers
+// Request interceptor
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('token');
@@ -16,17 +16,14 @@ api.interceptors.request.use(
     }
     return config;
   },
-  (error) => {
-    return Promise.reject(error);
-  }
+  (error) => Promise.reject(error)
 );
 
-// Response interceptor for handling global errors (like 401 Unauthorized)
+// Response interceptor
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response && error.response.status === 401) {
-      // Clear token and redirect to login if unauthorized
+    if (error.response?.status === 401) {
       localStorage.removeItem('token');
       localStorage.removeItem('user');
       window.location.href = '/login';
